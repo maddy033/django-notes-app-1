@@ -1,0 +1,35 @@
+name: CD
+
+on:
+  workflow_call: 
+
+jobs:
+  deploy:
+   #if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Docker Login
+        uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Pull Latest Images
+        run: |
+          docker pull ${{ vars.DOCKERHUB_USERNAME }}/django-notes-app:latest
+
+      - name: Stop Old Containers
+        run: |
+          docker compose down || true
+
+      - name: Start Application
+        run: |
+          docker compose up -d
+
+      - name: Check Running Containers
+        run: |
+          docker ps
