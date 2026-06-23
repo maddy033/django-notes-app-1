@@ -1,7 +1,8 @@
 name: CI
 
 on:
- workflow_dispatch: 
+ push:
+  branches: main
 
 jobs:
   build:
@@ -23,3 +24,7 @@ jobs:
           context: .
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/django-notes-app:latest
+  deploy:
+       needs: [build]
+       uses:  ./.github/workflows/cd.yml
+       secrets: inherit
